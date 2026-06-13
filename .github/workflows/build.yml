@@ -24,12 +24,12 @@ jobs:
       - name: Decompile classes
         run: |
           mkdir -p src/main/java
-          procyon -jar plugin.jar -o src/main/java
+          procyon -jar DonutAuction-1.5.jar -o src/main/java
 
       - name: Extract resources
         run: |
           mkdir -p src/main/resources/gui
-          unzip -o plugin.jar \
+          unzip -o DonutAuction-1.5.jar \
             plugin.yml config.yml lang.yml webhook.yml license.yml \
             "gui/*" \
             -d _res
