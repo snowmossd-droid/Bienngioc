@@ -2,6 +2,10 @@ name: Decompile DonutAuction
 
 on:
   workflow_dispatch:
+    inputs:
+      jar_url:
+        description: 'URL download trực tiếp file JAR'
+        required: true
 
 jobs:
   decompile:
@@ -14,26 +18,29 @@ jobs:
       - name: Install Procyon
         run: sudo apt-get install -y procyon-decompiler
 
+      - name: Download JAR
+        run: wget -O plugin.jar "${{ github.event.inputs.jar_url }}"
+
       - name: Decompile classes
         run: |
           mkdir -p src/main/java
-          procyon -jar DonutAuction-1_5.jar -o src/main/java
+          procyon -jar plugin.jar -o src/main/java
 
       - name: Extract resources
         run: |
           mkdir -p src/main/resources/gui
-          unzip -o DonutAuction-1_5.jar \
+          unzip -o plugin.jar \
             plugin.yml config.yml lang.yml webhook.yml license.yml \
             "gui/*" \
             -d _res
           cp _res/plugin.yml _res/config.yml _res/lang.yml \
-             _res/webhook.yml _res/license.yml src/main/resources/
-          cp -r _res/gui/. src/main/resources/gui/
+             _res/webhook.yml _res/license.yml src/main/resources/ 2>/dev/null || true
+          cp -r _res/gui/. src/main/resources/gui/ 2>/dev/null || true
 
       - name: Commit source
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add src/
-          git commit -m "decompile: DonutAuction-1_5"
+          git diff --staged --quiet || git commit -m "decompile: DonutAuction"
           git push
